@@ -14,7 +14,7 @@ describe LogStash::Filters::KV do
       }
     CONFIG
 
-    sample "hello=world foo=bar baz=fizz doublequoted=\"hello world\" singlequoted='hello world' bracketsone=(hello world) bracketstwo=[hello world] bracketsthree=<hello world>" do
+    sample "hello=world foo=bar baz=fizz doublequoted=\"hello world\" singlequoted='hello world' bracketsone=(hello world) bracketstwo=[hello world] bracketsthree=<hello world> singlequotedescaped='hello\\' world' doublequotedescaped=\"hello\\\" world\"" do
       insist { subject.get("hello") } == "world"
       insist { subject.get("foo") } == "bar"
       insist { subject.get("baz") } == "fizz"
@@ -23,6 +23,8 @@ describe LogStash::Filters::KV do
       insist { subject.get("bracketsone") } == "hello world"
       insist { subject.get("bracketstwo") } == "hello world"
       insist { subject.get("bracketsthree") } == "hello world"
+      insist { subject.get("singlequotedescaped") } == "hello' world"
+      insist { subject.get("doublequotedescaped") } == 'hello" world'
     end
   end
 
@@ -36,13 +38,15 @@ describe LogStash::Filters::KV do
       }
     CONFIG
 
-    sample "hello = world Foo =Bar BAZ= FIZZ doublequoteD = \"hellO worlD\" Singlequoted= 'Hello World' brAckets =(hello World)" do
+    sample "hello = world Foo =Bar BAZ= FIZZ doublequoteD = \"hellO worlD\" Singlequoted= 'Hello World' brAckets =(hello World) singlequotEDescaped='heLLo\\' world' doublequotEDEscaped=\"heLLo\\\" world\" " do
       insist { subject.get("HELLO") } == "world"
       insist { subject.get("FOO") } == "bar"
       insist { subject.get("BAZ") } == "fizz"
       insist { subject.get("DOUBLEQUOTED") } == "hello world"
       insist { subject.get("SINGLEQUOTED") } == "hello world"
       insist { subject.get("BRACKETS") } == "hello world"
+      insist { subject.get("SINGLEQUOTEDESCAPED") } == "hello' world"
+      insist { subject.get("DOUBLEQUOTEDESCAPED") } == 'hello" world'
     end
   end
 
@@ -56,13 +60,15 @@ describe LogStash::Filters::KV do
       }
     CONFIG
 
-    sample "Hello = World fOo =bar baz= FIZZ DOUBLEQUOTED = \"hellO worlD\" singlequoted= 'hEllo wOrld' brackets =(HELLO world)" do
+    sample "Hello = World fOo =bar baz= FIZZ DOUBLEQUOTED = \"hellO worlD\" singlequoted= 'hEllo wOrld' brackets =(HELLO world) singlequoteDEScaped='hELlo\\' world' doublequotedescaped=\"HELLO\\\" world\"" do
       insist { subject.get("hello") } == "WORLD"
       insist { subject.get("foo") } == "BAR"
       insist { subject.get("baz") } == "FIZZ"
       insist { subject.get("doublequoted") } == "HELLO WORLD"
       insist { subject.get("singlequoted") } == "HELLO WORLD"
       insist { subject.get("brackets") } == "HELLO WORLD"
+      insist { subject.get("singlequotedescaped") } == "HELLO' WORLD"
+      insist { subject.get("doublequotedescaped") } == 'HELLO" WORLD'
     end
   end
 
@@ -76,13 +82,15 @@ describe LogStash::Filters::KV do
       }
     CONFIG
 
-    sample "Hello = World fOo =bar baz= FIZZ DOUBLEQUOTED = \"hellO worlD\" singlequoted= 'hEllo wOrld' brackets =(HELLO world)" do
+    sample "Hello = World fOo =bar baz= FIZZ DOUBLEQUOTED = \"hellO worlD\" singlequoted= 'hEllo wOrld' brackets =(HELLO world) singlequotedescaped='hello\\' world' doublequotedescaped=\"hello\\\" world\"" do
       insist { subject.get("Hello") } == "World"
       insist { subject.get("Foo") } == "Bar"
       insist { subject.get("Baz") } == "Fizz"
       insist { subject.get("Doublequoted") } == "Hello world"
       insist { subject.get("Singlequoted") } == "Hello world"
       insist { subject.get("Brackets") } == "Hello world"
+      insist { subject.get("Singlequotedescaped") } == "Hello' world"
+      insist { subject.get("Doublequotedescaped") } == 'Hello" world'
     end
   end
 
@@ -93,13 +101,15 @@ describe LogStash::Filters::KV do
       }
     CONFIG
 
-    sample "hello = world foo =bar baz= fizz doublequoted = \"hello world\" singlequoted= 'hello world' brackets =(hello world)" do
+    sample "hello = world foo =bar baz= fizz doublequoted = \"hello world\" singlequoted= 'hello world' brackets =(hello world) singlequotedescaped= 'hello\\' world' doublequotedescaped = \"hello\\\" world\"" do
       insist { subject.get("hello") } == "world"
       insist { subject.get("foo") } == "bar"
       insist { subject.get("baz") } == "fizz"
       insist { subject.get("doublequoted") } == "hello world"
       insist { subject.get("singlequoted") } == "hello world"
       insist { subject.get("brackets") } == "hello world"
+      insist { subject.get("singlequotedescaped") } == "hello' world"
+      insist { subject.get("doublequotedescaped") } == 'hello" world'
     end
   end
 
@@ -124,13 +134,15 @@ describe LogStash::Filters::KV do
         }
       CONFIG
 
-      sample "hello:=world foo:bar baz=:fizz doublequoted:\"hello world\" singlequoted:'hello world' brackets:(hello world)" do
+      sample "hello:=world foo:bar baz=:fizz doublequoted:\"hello world\" singlequoted:'hello world' brackets:(hello world) singlequotedescaped:'hello\\' world' doublequotedescaped:\"hello\\\" world\"" do
         insist { subject.get("hello") } == "=world"
         insist { subject.get("foo") } == "bar"
         insist { subject.get("baz=") } == "fizz"
         insist { subject.get("doublequoted") } == "hello world"
         insist { subject.get("singlequoted") } == "hello world"
         insist { subject.get("brackets") } == "hello world"
+        insist { subject.get("singlequotedescaped") } == "hello' world"
+        insist { subject.get("doublequotedescaped") } == 'hello" world'
       end
     end
   end
@@ -228,13 +240,15 @@ describe LogStash::Filters::KV do
       }
     CONFIG
 
-    sample "?hello=world&foo=bar&baz=fizz&doublequoted=\"hello world\"&singlequoted='hello world'&ignoreme&foo12=bar12" do
+    sample "?hello=world&foo=bar&baz=fizz&doublequoted=\"hello world\"&singlequoted='hello world'&ignoreme&foo12=bar12&singlequotedescaped='hello\\' world'&doublequotedescaped=\"hello\\\" world\"" do
       insist { subject.get("hello") } == "world"
       insist { subject.get("foo") } == "bar"
       insist { subject.get("baz") } == "fizz"
       insist { subject.get("doublequoted") } == "hello world"
       insist { subject.get("singlequoted") } == "hello world"
       insist { subject.get("foo12") } == "bar12"
+      insist { subject.get("singlequotedescaped") } == "hello' world"
+      insist { subject.get("doublequotedescaped") } == 'hello" world'
     end
   end
 
@@ -289,12 +303,14 @@ describe LogStash::Filters::KV do
       }
     CONFIG
 
-    sample "hello=world foo=bar baz=fizz doublequoted=\"hello world\" singlequoted='hello world'" do
+    sample "hello=world foo=bar baz=fizz doublequoted=\"hello world\" singlequoted='hello world' singlequotedescaped='hello\\' world' doublequotedescaped=\"hello\\\" world\"" do
       insist { subject.get("__hello") } == "world"
       insist { subject.get("__foo") } == "bar"
       insist { subject.get("__baz") } == "fizz"
       insist { subject.get("__doublequoted") } == "hello world"
       insist { subject.get("__singlequoted") } == "hello world"
+      insist { subject.get("__singlequotedescaped") } == "hello' world"
+      insist { subject.get("__doublequotedescaped") } == 'hello" world'
     end
 
   end

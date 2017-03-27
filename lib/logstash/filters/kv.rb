@@ -292,7 +292,9 @@ class LogStash::Filters::KV < LogStash::Filters::Base
     @remove_char_value_re = Regexp.new("[#{@remove_char_value}]") if @remove_char_value
     @remove_char_key_re = Regexp.new("[#{@remove_char_key}]") if @remove_char_key
 
-    valueRxString = "(?:\"([^\"]+)\"|'([^']+)'"
+    doubleQuotes = '"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"'
+    singleQuotes = "'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'"
+    valueRxString = "(?:" + doubleQuotes + '|' + singleQuotes
     valueRxString += "|\\(([^\\)]+)\\)|\\[([^\\]]+)\\]|<([^>]+)>" if @include_brackets
     valueRxString += "|((?:\\\\ |[^" + @field_split + "])+))"
     @scan_re = Regexp.new("((?:\\\\ |[^" + @field_split + @value_split + "])+)\s*[" + @value_split + "]\s*" + valueRxString)
@@ -354,8 +356,8 @@ class LogStash::Filters::KV < LogStash::Filters::Base
     include_keys = @include_keys.map{|key| event.sprintf(key)}
     exclude_keys = @exclude_keys.map{|key| event.sprintf(key)}
 
-    text.scan(@scan_re) do |key, v1, v2, v3, v4, v5, v6|
-      value = v1 || v2 || v3 || v4 || v5 || v6
+    text.scan(@scan_re) do |key, doublequote, singlequote, brackets1, brackets2, brackets3, raw|
+      value = doublequote || singlequote || brackets1 || brackets2 || brackets3 || raw
       key = @trim_key ? key.gsub(@trim_key_re, "") : key
       key = @remove_char_key ? key.gsub(@remove_char_key_re, "") : key
       key = @transform_key ? transform(key, @transform_key) : key
@@ -367,6 +369,8 @@ class LogStash::Filters::KV < LogStash::Filters::Base
 
       key = event.sprintf(@prefix) + key
 
+      value = value.gsub('\\"', '"') if doublequote
+      value = value.gsub("\\'", "'") if singlequote
       value = @trim_value ? value.gsub(@trim_value_re, "") : value
       value = @remove_char_value ? value.gsub(@remove_char_value_re, "") : value
       value = @transform_value ? transform(value, @transform_value) : value
